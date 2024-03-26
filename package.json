@@ -1,0 +1,23 @@
+{
+  "name": "telegrambot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "start": "node ./scr/main.js",
+    "dev": "nodemon ./scr/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.14",
+    "config": "^3.3.11",
+    "openai": "^4.29.2",
+    "telegraf": "^4.16.3"
+  }
+}
