@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "start": "node ./scr/main.js",
-    "dev": "nodemon ./scr/main.js"
+    "start": "node ./src/main.js",
+    "dev": "nodemon ./src/main.js"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +18,7 @@
     "@notionhq/client": "^2.2.14",
     "config": "^3.3.11",
     "openai": "^4.29.2",
+    "pm2": "^5.3.1",
     "telegraf": "^4.16.3"
   }
 }

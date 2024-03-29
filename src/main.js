@@ -1,33 +1,75 @@
 import { Telegraf } from "telegraf";
-import { message } from "telegraf/filters";
 import config from "config";
-import { chatGPT } from "./chatgpt.js";
-import { create } from "./notion.js";
-import { Loader } from "./loader.js";
+import {
+  showMenu,
+  backMenu,
+  selectedKeyboard,
+  pastInlineKeyboard,
+} from "./menu.js";
+import {
+  responseGPT,
+  searchDB,
+  addToNotion,
+} from "../controllers/menuControllers.js";
+const botName = "home_first_aid_kit_bot";
+
 const bot = new Telegraf(config.get("TELEGRAM_TOKEN"), {
   handlerTimeout: Infinity,
 });
 
-bot.command("start", (cxt) => {
-  cxt.reply("Hi I'm new bot");
+bot.start(async (ctx) => {
+  const chatId = ctx.chat.id;
+  showMenu(bot, chatId);
 });
-
-bot.on(message("text"), async (cxt) => {
-  try {
-    const text = cxt.message.text;
-    if (!text.trim()) cxt.reply("No empty text");
-
-    const loader = new Loader(cxt);
-    loader.show();
-    const response = await chatGPT(text);
-    if (!response) return cxt.reply("error with gpt", response);
-
-    const notionResponse = await create(text, response.content);
-    loader.hide();
-    cxt.reply(`${response.content}\nYour URL: ${notionResponse.url}`);
-  } catch (err) {
-    console.log("error while processing text to gpt");
-  }
+bot.on("callback_query", async (ctx) => {
+  console.log(ctx);
 });
+// bot.hears("➕ Додати нові ліки", (ctx) => ctx.reply("Yay!"));
+// bot.hears("🗂 Додати нову категорію", (ctx) => ctx.reply("Yay!"));
+// bot.hears("🤌 Використати ліки", (ctx) => ctx.reply("Yay!"));
+// bot.hears("🫰 Поповнити аптечку", (ctx) => ctx.reply("Yay!"));
+// bot.hears("✅ додати в аптечку", async (ctx) => {
+//   await addToNotion(ctx);
+// });
+
+// bot.hears("🤖 Пошук з AI", async (ctx) => {
+//   const chatId = ctx.chat.id;
+//   const actionName = "Напиши назву препарату 🔽";
+
+//   bot.on("text", async (ctx) => {
+//     try {
+//       const responseFromGPT = await responseGPT(bot, ctx);
+//       ctx.reply(`${responseFromGPT.content}`, pastInlineKeyboard());
+//       const chatId = ctx.chat.id;
+//       const pageKeyboard = "✅ додати в аптечку";
+//       const actionName = "Вибери дію: 🔽";
+
+//       await addToNotion(ctx, responseFromGPT);
+//     } catch (err) {
+//       console.log("error in bot.on");
+//     }
+//   });
+//   await selectedKeyboard(bot, chatId, actionName);
+// });
+
+// bot.hears("🔍 Пошук в аптечці", (ctx) => {
+//   const chatId = ctx.chat.id;
+//   const actionName = "Напиши назву препарату 🔽";
+//   selectedKeyboard(bot, chatId, actionName);
+//   bot.on("text", async (ctx) => {
+//     try {
+//       await searchDB(ctx);
+//     } catch (err) {}
+//   });
+// });
+
+// bot.hears("📱 Меню", (ctx) => {
+//   const chatId = ctx.chat.id;
+//   showMenu(bot, chatId);
+// });
+// bot.hears("◀️ Назад", (ctx) => {
+//   const chatId = ctx.chat.id;
+//   backMenu(bot, chatId);
+// });
 
 bot.launch();
