@@ -5,13 +5,7 @@ const notion = new Client({
   auth: config.get("NOTION_key"),
 });
 
-export async function create(
-  name,
-  text,
-  parsedForUse,
-  parsedCategory,
-  parsedHowUse
-) {
+export async function create(goodRespons) {
   const response = await notion.pages.create({
     parent: { database_id: config.get("NOTION_DB_ID") },
     properties: {
@@ -19,7 +13,7 @@ export async function create(
         title: [
           {
             text: {
-              content: name,
+              content: goodRespons.parsedName,
             },
           },
         ],
@@ -32,7 +26,7 @@ export async function create(
       Категорія: {
         multi_select: [
           {
-            name: parsedCategory[1],
+            name: goodRespons.parsedCategory,
             color: "brown",
           },
         ],
@@ -40,14 +34,14 @@ export async function create(
       "Спосіб використання": {
         rich_text: [
           {
-            text: { content: parsedHowUse[1] },
+            text: { content: goodRespons.parsedHowUse },
           },
         ],
       },
       "Для чого": {
         multi_select: [
           {
-            name: parsedForUse[1],
+            name: goodRespons.parsedForUse,
             color: "brown",
           },
         ],
@@ -66,7 +60,7 @@ export async function create(
             {
               type: "text",
               text: {
-                content: text,
+                content: goodRespons.responseFromGPT,
               },
             },
           ],
@@ -77,14 +71,14 @@ export async function create(
   return response;
 }
 
-export const checkDB = async (search) => {
+export const checkDB = async (searchWord) => {
   const retrieveDb = await notion.databases.query({
     database_id: config.get("NOTION_DB_ID"),
 
     filter: {
       property: "Назва",
       title: {
-        contains: search,
+        contains: searchWord,
       },
     },
   });

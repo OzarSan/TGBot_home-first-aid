@@ -3,9 +3,9 @@ export const showMenu = (bot, chatId) => {
   bot.telegram.sendMessage(chatId, "Вибери дію:", {
     reply_markup: {
       keyboard: [
-        // ["➕ Додати нові ліки", "🗂 Додати нову категорію"],
-        // ["🤌 Використати ліки", "🫰 Поповнити аптечку"],
-        // ["🤖 Пошук з AI", "🔍 Пошук в аптечці", "◀️ Назад"],
+        ["➕ Додати нові ліки", "🗂 Додати нову категорію"],
+        ["🤌 Використати ліки", "🫰 Поповнити аптечку"],
+        ["🤖 Пошук з AI", "🔍 Пошук в аптечці", "◀️ Назад"],
       ],
       resize_keyboard: true,
     },
@@ -41,8 +41,11 @@ export const selectedKeyboard = async (
     },
   });
 };
-export function pastInlineKeyboard() {
+export function pastInlineKeyboard(inlineKeyboardName) {
   return Markup.inlineKeyboard([
-    Markup.button.callback("Додати в аптечку", "addToAidKit"),
+    Markup.button.callback(
+      inlineKeyboardName.header,
+      inlineKeyboardName.callbackName
+    ),
   ]);
 }

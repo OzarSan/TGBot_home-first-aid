@@ -1,47 +1,60 @@
 import { Loader } from "../src/loader.js";
-import { message } from "telegraf/filters";
 import { chatGPT } from "../src/chatgpt.js";
 import { create, checkDB } from "../src/notion.js";
 
-export const responseGPT = async (bot, ctx) => {
+export const responseGPT = async (ctx) => {
   try {
     const text = ctx.message.text;
-    if (!text.trim()) ctx.reply("No empty text");
-
+    if (!text.trim()) ctx.reply("Назва не може бути пуста");
     const loader = new Loader(ctx);
     loader.show();
     const responsGpt = await chatGPT(text);
-    if (!responsGpt) return ctx.reply("error with gpt", responsGpt);
+    if (!responsGpt)
+      return ctx.reply("Штучний інтелект не надав відповіді", responsGpt);
     loader.hide();
     return responsGpt;
   } catch (err) {
-    console.log("error while processing text to gpt");
+    ctx.reply("Нажаль не можливо скористатися штучним інтелектом");
   }
 };
 
-export const searchDB = async (ctx) => {
+export const searchDB = async (bot, ctx) => {
   const chechNotionResult = await checkDB(ctx.message.text);
   if (chechNotionResult.results.length !== 0) {
-    ctx.reply("Yes");
+    ctx.reply("Знайдено в аптечці");
+    //return "Знайдено в аптечці";
   } else {
-    ctx.reply("No");
+    ctx.reply("Нажаль такого препарату немає");
   }
 };
-export const addToNotion = async (ctx, responseFromGPT) => {
+export const addToNotion = async (ctx, goodRespons) => {
   try {
-    const parsedRespons = responseFromGPT.content.split("\n");
-    const parsedForUse = parsedRespons[1].split(":");
-    const parsedCategory = parsedRespons[2].split(":");
-    const parsedHowUse = parsedRespons[3].split(":");
-    const responsNotion = await create(
-      ctx.message.text,
-      responseFromGPT.content,
-      parsedForUse,
-      parsedCategory,
-      parsedHowUse
-    );
+    await create(goodRespons);
+    ctx.reply("Успішно додато в аптечку");
   } catch (err) {
-    ctx.reply("Не вдалося розпізнати препарат та додати у список");
+    ctx.reply("Не вдалося додати у список");
+    return;
+  }
+};
+export const parseRespons = async (ctx, responseFromGPT) => {
+  try {
+    const parsedRespons = responseFromGPT.split("\n").filter((el) => el);
+    const goodRespons = {
+      parsedName: parsedRespons
+        .find((el) => el.match("Назва препарату"))
+        .split(":")[1],
+      parsedForUse: parsedRespons.find((el) => el.match("Для")).split(":")[1],
+      parsedCategory: parsedRespons
+        .find((el) => el.match("Категорія"))
+        .split(":")[1],
+      parsedHowUse: parsedRespons
+        .find((el) => el.match("Спосіб застосування"))
+        .split(":")[1],
+      responseFromGPT,
+    };
+    return goodRespons;
+  } catch (err) {
+    ctx.reply("Не вдалося розпізнати препарат");
     return;
   }
 };
